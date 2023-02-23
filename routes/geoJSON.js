@@ -8,9 +8,9 @@ const fs = require('fs');
 const os = require('os');
 const userInfo = os.userInfo();
 const user707 = userInfo.username;
-console.log(username)
+console.log(user707)
 // locate the database login details
-const configtext =""+fs.readFileSync("/home/"+tianyzha+"/certs/postGISConnection.js");
+const configtext =""+fs.readFileSync("/home/"+'tianyzha'+"/certs/postGISConnection.js");
 
 // now convert the configuration file into the correct format -i.e. a name/value pair array
 const configarray=configtext.split(",");
@@ -28,5 +28,5 @@ geoJSON.route('/testGeoJSON').get(function (req,res) {
     });
 
 // last line of the code:export function so the route can be published to the dataAPI.js server
-module.export =geoJSON
+module.exports =geoJSON;
    
