@@ -10,23 +10,39 @@ const userInfo = os.userInfo();
 const user707 = userInfo.username;
 console.log(user707)
 // locate the database login details
-const configtext =""+fs.readFileSync("/home/"+'tianyzha'+"/certs/postGISConnection.js");
+const configtext = "" + fs.readFileSync("/home/" + 'tianyzha' + "/certs/postGISConnection.js");
 
 // now convert the configuration file into the correct format -i.e. a name/value pair array
-const configarray=configtext.split(",");
-let config={};
-for (let i=0;i<configarray.length;i++){
-    let split=configarray[i].split(':');
-    config[split[0].trim()]=split[1].trim();
+const configarray = configtext.split(",");
+let config = {};
+for (let i = 0; i < configarray.length; i++) {
+    let split = configarray[i].split(':');
+    config[split[0].trim()] = split[1].trim();
 }
-const pool =new pg.Pool(config);
+const pool = new pg.Pool(config);
 console.log(config);
 
 // simple test
-geoJSON.route('/testGeoJSON').get(function (req,res) {
-    res.json({message:req.originalUrl});
-    });
+geoJSON.route('/testGeoJSON').get(function (req, res) {
+    res.json({ message: req.originalUrl });
+});
 
 // last line of the code:export function so the route can be published to the dataAPI.js server
-module.exports =geoJSON;
-   
+module.exports = geoJSON;
+
+geoJSON.get('/postgistest', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        client.query(' select * from information_schema.columns', function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
