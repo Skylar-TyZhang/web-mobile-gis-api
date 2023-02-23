@@ -29,3 +29,6 @@ app.use(function(req,res,next){
 });
 // always the last bit of the file
 app.use(express.static(__dirname));
+// route information
+const geoJSON = require('./routes/geoJSON');
+app.use('/geojson', geoJSON);
