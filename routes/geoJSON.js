@@ -25,7 +25,7 @@ console.log(config);
 // simple test
 geoJSON.route('/testGeoJSON').get(function (req, res) {
     console.log('the test runs')
-    res.json({ message: req.originalUrl});
+    res.json({ message: req.originalUrl });
 });
 
 
@@ -46,5 +46,29 @@ geoJSON.get('/postgistest', function (req, res) {
         });
     });
 });
+
+//view data as geoJSON
+geoJSON.get('/getSensors', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let querystring = "SELECT 'FeatureCollection' as type, array_to_json(array_agg(f)) As features FROM";
+	querytring+"(SELECT 'Feature' as tye, st_asGeoJSON(st_transform(lg.locaion,4326))::json as geomery,"
+        querystring = querystring + "row_to_json((SELECT l FROM (SELECT sensor_id, sensor_name, sensor_make,sensor_installation_date,room_id)As l)) As properties";
+        querystring = querystring + "FROM ucfscde.temperature_sensors As lg LIMIT 100 ) As f";
+
+        client.query(querystring, function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+
 // last line of the code:export function so the route can be published to the dataAPI.js server
 module.exports = geoJSON;
