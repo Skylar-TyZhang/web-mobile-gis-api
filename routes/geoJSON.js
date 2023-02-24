@@ -1,5 +1,5 @@
 //set up database connection 
-"user strict"
+"user strict";
 const express = require('express');
 const pg = require('pg');
 const geoJSON = require('express').Router();
@@ -10,7 +10,7 @@ const userInfo = os.userInfo();
 const user707 = userInfo.username;
 console.log(user707)
 // locate the database login details
-const configtext = "" + fs.readFileSync("/home/" + 'tianyzha' + "/certs/postGISConnection.js");
+const configtext = "" + fs.readFileSync("/home/" + user707 + "/certs/postGISConnection.js");
 
 // now convert the configuration file into the correct format -i.e. a name/value pair array
 const configarray = configtext.split(",");
@@ -24,11 +24,11 @@ console.log(config);
 
 // simple test
 geoJSON.route('/testGeoJSON').get(function (req, res) {
-    res.json({ message: req.originalUrl });
+    console.log('the test runs')
+    res.json({ message: req.originalUrl});
 });
 
-// last line of the code:export function so the route can be published to the dataAPI.js server
-module.exports = geoJSON;
+
 
 geoJSON.get('/postgistest', function (req, res) {
     pool.connect(function (err, client, done) {
@@ -46,3 +46,5 @@ geoJSON.get('/postgistest', function (req, res) {
         });
     });
 });
+// last line of the code:export function so the route can be published to the dataAPI.js server
+module.exports = geoJSON;

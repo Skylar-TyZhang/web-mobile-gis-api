@@ -1,5 +1,5 @@
 "user strict";
-//express is the server
+//express is the server that forms part of the nodejs program
 let express=require('express');
 let  path = require("path");
 let  fs = require('fs');    // file system
@@ -12,7 +12,7 @@ let  httpServer = http.createServer(app);
 httpServer.listen(4480);
 
 app.get('/',function(req,res){
-    res.send("hello world from the Data API");
+    res.send("hello world from the Data API"+Date.now());
 });
 // to support cross origin req
 app.use(function(req,res,next){
@@ -23,14 +23,17 @@ app.use(function(req,res,next){
     
 });
 
-// to log requests
+// log requests so that it is easier to debug
 app.use(function(req,res,next){
     let filename=path.basename(req.url);
     let extension=path.extname(filename);
-    console.log("The file"+filename+"was requested.");
+    console.log("The file "+filename+" was requested.");
+    next()
 });
-// always the last bit of the file
-app.use(express.static(__dirname));
+
 // route information
 const geoJSON = require('./routes/geoJSON');
-app.use('/geojson', geoJSON);
+app.use('/geojson',geoJSON);
+
+// always the last bit of the file
+// app.use(express.static(__dirname));
