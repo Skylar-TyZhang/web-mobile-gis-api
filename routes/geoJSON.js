@@ -54,9 +54,9 @@ geoJSON.get('/getSensors', function (req, res) {
             console.log("not able to get connection " + err);
             res.status(400).send(err);
         }
-        let querystring = "SELECT 'FeatureCollection' as type, array_to_json(array_agg(f)) As features FROM";
-	querytring+"(SELECT 'Feature' as tye, st_asGeoJSON(st_transform(lg.locaion,4326))::json as geomery,"
-        querystring = querystring + "row_to_json((SELECT l FROM (SELECT sensor_id, sensor_name, sensor_make,sensor_installation_date,room_id)As l)) As properties";
+        let querystring = " SELECT 'FeatureCollection' as type, array_to_json(array_agg(f)) As features FROM ";
+        querystring = querystring + "(SELECT 'Feature' as type, st_AsGeoJSON(st_transform(lg.locaion,4326))::json as geomery,";
+        querystring = querystring + "row_to_json((SELECT l FROM (SELECT sensor_id, sensor_name, sensor_make, sensor_installation_date, room_id)As l)) As properties";
         querystring = querystring + "FROM ucfscde.temperature_sensors As lg LIMIT 100 ) As f";
 
         client.query(querystring, function (err, result) {
