@@ -40,6 +40,8 @@ app.use(function(req,res,next){
 // route information
 const geoJSON = require('./routes/geoJSON');
 app.use('/geojson',geoJSON);
-
+// add crud route
+const crud = require('./routes/crud');
+app.use('/',crud);
 // always the last bit of the file
 // app.use(express.static(__dirname));
