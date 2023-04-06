@@ -29,7 +29,6 @@ geoJSON.route('/testGeoJSON').get(function (req, res) {
 });
 
 
-
 geoJSON.get('/postgistest', function (req, res) {
     pool.connect(function (err, client, done) {
         if (err) {
@@ -156,6 +155,29 @@ geoJSON.get('/:schemaname/:tablename/:idcolumn/:geomcolumn', function (req, res)
             }); // end of query to list all columns
     });// end of the pool 
 });// end of function
+
+// add endpoint to get the condition status list for the drop down on the form
+// ENDPOINT
+geoJSON.get('/conditionDetails', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        var querystring = "select * from cege0043.asset_condition_options;";
+        
+
+        client.query(querystring, function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+
 
 // last line of the code:export function so the route can be published to the dataAPI.js server
 module.exports = geoJSON;
