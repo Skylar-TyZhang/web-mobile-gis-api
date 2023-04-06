@@ -8,7 +8,7 @@ let fs = require('fs');
 let os = require('os');
 const userInfo = os.userInfo();
 const user707 = userInfo.username;
-console.log('user707 info loaded'+ user707);
+console.log(user707);
 // locate the database login details
 let configtext = "" + fs.readFileSync("/home/" + user707 + "/certs/postGISConnection.js");
 
@@ -42,9 +42,7 @@ crud.post('/testCRUD', function (req, res) {
 crud.get('/userId', function(req, res){
     res.json({message:req.originalUrl + " " + "GET REQUEST>"});
 });
-crud.post('/userId', function (req, res) {
-    res.json({ message: req.body });
-});
+
 
 // end of the file
 module.exports= crud;
