@@ -10,7 +10,7 @@ let  app = express();
 let  httpServer = http.createServer(app);
 
 httpServer.listen(4480);
-
+// add endpoints
 app.get('/',function(req,res){
     res.send("hello world from the Data API"+Date.now());
 });
