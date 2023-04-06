@@ -8,7 +8,7 @@ let fs = require('fs');
 let os = require('os');
 const userInfo = os.userInfo();
 const user707 = userInfo.username;
-console.log('user707 info loaded'+ user707);
+console.log(user707);
 // locate the database login details
 let configtext = "" + fs.readFileSync("/home/" + user707 + "/certs/postGISConnection.js");
 
@@ -40,11 +40,24 @@ crud.post('/testCRUD', function (req, res) {
 });
 // Add endpoints to get userID
 crud.get('/userId', function(req, res){
-    res.json({message:req.originalUrl + " " + "GET REQUEST>"});
+    //res.json({message:req.originalUrl + " " + "GET REQUEST>"});
+    pool.connect(function(err, client,done){
+        if (err){
+            console.log("Not able to get connection "+ err);
+            res.status(400).send(err);
+        }
+    var querystring='select user_id from ucfscde.users where user_name = current_user;'
+    client.query(querystring, function(err, result){
+        done();
+        if (err){
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    })
+    })
 });
-crud.post('/userId', function (req, res) {
-    res.json({ message: req.body });
-});
+
 
 // end of the file
 module.exports= crud;
