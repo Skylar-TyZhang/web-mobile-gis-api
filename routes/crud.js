@@ -57,7 +57,10 @@ crud.get('/userId', function(req, res){
     })
     })
 });
-
+// Added endpoint for insert functionality
+crud.post('/insertAssetPoint', function (req, res) {
+    res.json({ message: req.body });
+});
 
 // end of the file
 module.exports= crud;
