@@ -165,7 +165,7 @@ geoJSON.get('/conditionDetails', function (req, res) {
             res.status(400).send(err);
         }
         var querystring = "select * from cege0043.asset_condition_options;";
-        
+
 
         client.query(querystring, function (err, result) {
             done();
@@ -179,5 +179,194 @@ geoJSON.get('/conditionDetails', function (req, res) {
 });
 
 
+//-- Code to get only the geoJSON asset locations for a specific user_id
+// Use when first loading the web page and also when another layer is removed
+// Reference A2
+geoJSON.get('/userAssets/:user_id', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let user_id = req.params.user_id
+        var colnames = "asset_id, asset_name, installation_date, latest_condition_report_date, condition_description";
+
+        // now use the inbuilt geoJSON functionality
+        // and create the required geoJSON format using a query adapted from here:
+        // http://www.postgresonline.com/journal/archives/267-Creating-GeoJSON-Feature-Collections-with-JSON-and-PostGIS-functions.html, accessed 4th January 2018
+
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = " SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM ";
+        querystring += "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry, ";
+        querystring += "row_to_json((SELECT l FROM (SELECT " + colnames + " ) As l      )) As properties";
+        querystring += "   FROM cege0043.asset_with_latest_condition As lg ";
+        querystring += " where user_id = $1 limit 100  ) As f ";
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [user_id], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+//Reference A3
+// Tell user how my condition reports they have saved when they add a new condition report
+geoJSON.get('/userConditionReports/:user_id', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let user_id = req.params.user_id
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "select array_to_json (array_agg(c)) from (SELECT COUNT(*) AS num_reports from cege0043.asset_condition_information where user_id = $1) c;"
+        
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [user_id], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+// Reference S1
+geoJSON.get('/userRanking/:user_id', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let user_id = req.params.user_id
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "select array_to_json (array_agg(hh)) from"+
+        "(select c.rank from (SELECT b.user_id, rank()over (order by num_reports desc) as rank"+ 
+        "from (select COUNT(*) AS num_reports, user_id from cege0043.asset_condition_information group by user_id) b) c where c.user_id = $1) hh"
+        
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [user_id], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+//Reference L1
+geoJSON.get('/assetsInGreatCondition',function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        var querystring = "select array_to_json (array_agg(d)) from (select c.* from cege0043.asset_information c inner join "+
+        "(select count(*) as best_condition, asset_id from cege0043.asset_condition_information where "+
+        "condition_id in (select id from cege0043.asset_condition_options where condition_description like '%very good%') group by asset_id"+
+        " order by best_condition desc) b on b.asset_id = c.id) d;";
+
+
+        client.query(querystring, function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+//Reference S2
+geoJSON.get('/userFiveClosestAssets/:latitude/:longitude', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let latitude = req.params.latitude
+        let longitude= req.params.longitude
+        
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM "+
+        "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry, row_to_json((SELECT l FROM (SELECT id, asset_name, installation_date) As l )) As properties"+
+        " FROM   (select c.* from cege0043.asset_information c inner join (select id, st_distance(a.location, st_geomfromtext('POINT($1 $2)',4326)) as distance"+
+        "from cege0043.asset_information a order by distance asc limit 5) b on c.id = b.id ) as lg) As f"
+        
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [latitude,longitude], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+
+//REFERENCE S3
+geoJSON.get('/lastFiveConditionReports/:user_id', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let user_id = req.params.user_id
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM"+ 
+        "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry, "+
+        "row_to_json((SELECT l FROM (SELECT id,user_id, asset_name, condition_description) As l )) As properties FROM "+
+        "(select * from cege0043.condition_reports_with_text_descriptions where user_id = $1"+
+        "order by timestamp desc limit 5) as lg) As f"
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [user_id], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+//REFERENCE S4
+geoJSON.get('/conditionReportMissing/:user_id',function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let user_id = req.params.user_id
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM "+
+        "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry, "+
+        "row_to_json((SELECT l FROM (SELECT asset_id, asset_name, installation_date, latest_condition_report_date, condition_description) As l "+
+        " )) As properties FROM "+
+        "(select * from cege0043.asset_with_latest_condition where user_id = $1 and "+
+        "asset_id not in (select asset_id from cege0043.asset_condition_information "+
+        "where user_id = $1 and timestamp > NOW()::DATE-EXTRACT(DOW FROM NOW())::INTEGER-3)  ) as lg) As f"
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [user_id], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+//======================================
 // last line of the code:export function so the route can be published to the dataAPI.js server
 module.exports = geoJSON;
