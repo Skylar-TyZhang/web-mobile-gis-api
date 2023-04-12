@@ -284,7 +284,34 @@ geoJSON.get('/assetsInGreatCondition',function (req, res) {
         });
     });
 });
-
+//Reference S2
+geoJSON.get('/userFiveClosestAssets/:latitude/:longitude', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let latitude = req.params.latitude
+        let longitude= req.params.longitude
+        
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM "+
+        "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry, row_to_json((SELECT l FROM (SELECT id, asset_name, installation_date) As l )) As properties"+
+        " FROM   (select c.* from cege0043.asset_information c inner join (select id, st_distance(a.location, st_geomfromtext('POINT($1 $2)',4326)) as distance"+
+        "from cege0043.asset_information a order by distance asc limit 5) b on c.id = b.id ) as lg) As f"
+        
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [latitude,longitude], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
 //======================================
 // last line of the code:export function so the route can be published to the dataAPI.js server
 module.exports = geoJSON;
