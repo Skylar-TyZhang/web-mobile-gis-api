@@ -236,8 +236,31 @@ geoJSON.get('/userConditionReports/:user_id', function (req, res) {
         });
     });
 });
-
-
+// Reference S1
+geoJSON.get('/userRanking/:user_id', function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let user_id = req.params.user_id
+        
+        // note that query needs to be a single string with no line breaks so built it up bit by bit
+        var querystring = "select array_to_json (array_agg(hh)) from"+
+        "(select c.rank from (SELECT b.user_id, rank()over (order by num_reports desc) as rank"+ 
+        "from (select COUNT(*) AS num_reports, user_id from cege0043.asset_condition_information group by user_id) b) c where c.user_id = $1) hh"
+        
+        console.log('Query string: ' + querystring)
+        client.query(querystring, [user_id], function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
 
 //======================================
 // last line of the code:export function so the route can be published to the dataAPI.js server
