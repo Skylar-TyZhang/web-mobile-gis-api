@@ -60,7 +60,7 @@ crud.get('/userId', function (req, res) {
     })
 });
 // Added endpoint for insert functionality
-crud.post('/insertAssetPoint', function (req, res) {    
+crud.post('/insertAssetPoint', function (req, res) {
     pool.connect(function (err, client, done) {
         console.log('Connect to the database.')
 
@@ -71,27 +71,27 @@ crud.post('/insertAssetPoint', function (req, res) {
 
         let asset_name = req.body.asset_name;
         let installation_date = req.body.installation_date;
-        
+
         let geometrystring = "st_geomfromtext('POINT(" + req.body.longitude + " " + req.body.latitude + ")',4326)";
-        
+
         let querystring = "INSERT into cege0043.asset_information (asset_name, installation_date, location) values ";
         querystring += "($1,$2,";
-        querystring += geometrystring + ")";       
+        querystring += geometrystring + ")";
 
-        
-        client.query(querystring, [asset_name,installation_date], function (err, result) {
-                done();   
-                           
-                if (err) {                    
-                    res.status(400).send(err);
-                }
-                res.status(200).send("Form Data "+req.body.asset_name+" has been inserted");
-            });
+
+        client.query(querystring, [asset_name, installation_date], function (err, result) {
+            done();
+
+            if (err) {
+                res.status(400).send(err);
+            }
+            res.status(200).send("Form Data " + req.body.asset_name + " has been inserted");
+        });
 
     });
 })
 // Add endpoint for conditionInformation Insert
-crud.post('/insertConditionInformation',function (req, res) {    
+crud.post('/insertConditionInformation', function (req, res) {
     pool.connect(function (err, client, done) {
         console.log('Connect to the database.')
 
@@ -102,25 +102,55 @@ crud.post('/insertConditionInformation',function (req, res) {
 
         let asset_name = req.body.asset_name;
         let condition_description = req.body.condition_description;
-        
-          
-        //----
-        var querystring = "INSERT into cege0043.asset_condition_information (asset_id, condition_id) values (";
-	    querystring += "(select id from cege0043.asset_information where asset_name = $1),(select id from cege0043.asset_condition_options where condition_description = $2))";
-  
 
-        
-        client.query(querystring, [asset_name,condition_description], function (err, result) {
-                done();   
-                           
-                if (err) {                    
-                    res.status(400).send(err);
-                }
-                res.status(200).send("Condition form for "+req.body.asset_name+" has been inserted");
-            });
+        var querystring = "INSERT into cege0043.asset_condition_information (asset_id, condition_id) values (";
+        querystring += "(select id from cege0043.asset_information where asset_name = $1),(select id from cege0043.asset_condition_options where condition_description = $2))";
+
+
+
+        client.query(querystring, [asset_name, condition_description], function (err, result) {
+            done();
+
+            if (err) {
+                res.status(400).send(err);
+            }
+            res.status(200).send("Condition form for " + req.body.asset_name + " has been inserted");
+        });
+
+    });
+})
+//delete function
+crud.post('/deleteAsset', function (req, res) {
+    pool.connect(function (err, client, done) {
+        console.log('Connect to the database.')
+
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        let id=req.body.id;
+
+
+        var querystring = "DELETE from cege0043.asset_information where id = $1";
+        client.query(querystring, [id], function (err, result) {
+            done();
+
+            if (err) {
+                res.status(400).send(err);
+            }
+            res.status(200).send("id " + req.body.id + " has been deleted");
+        });
 
     });
 })
 
+
+
+
+
+
+
+
+//-------------------------
 // end of the file
 module.exports = crud;
