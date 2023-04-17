@@ -91,7 +91,7 @@ geoJSON.get('/:schemaname/:tablename/:idcolumn/:geomcolumn', function (req, res)
         querystring = querystring + " from information_schema.columns as colname";
         querystring = querystring + " where table_name = $1";
         querystring = querystring + " and column_name <>$2 and table_schema=$3 and data_type<>'USER-DEFINED') as cols";
-        console.log(querystring);
+        //console.log(querystring);
 
         // now run the query
         client.query(querystring, [tablename, geomcolumn, schema],
@@ -246,9 +246,8 @@ geoJSON.get('/userRanking/:user_id', function (req, res) {
         let user_id = req.params.user_id
         
         // note that query needs to be a single string with no line breaks so built it up bit by bit
-        var querystring = "select array_to_json (array_agg(hh)) from"+
-        "(select c.rank from (SELECT b.user_id, rank()over (order by num_reports desc) as rank"+ 
-        "from (select COUNT(*) AS num_reports, user_id from cege0043.asset_condition_information group by user_id) b) c where c.user_id = $1) hh"
+        var querystring = "select array_to_json (array_agg(hh)) from (select c.rank from (SELECT b.user_id, rank()over (order by num_reports desc) as rank from"+
+        " (select COUNT(*) AS num_reports, user_id from cege0043.asset_condition_information group by user_id) b) c  where c.user_id = $1) hh";
         
         console.log('Query string: ' + querystring)
         client.query(querystring, [user_id], function (err, result) {
