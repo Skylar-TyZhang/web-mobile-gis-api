@@ -201,7 +201,7 @@ geoJSON.get('/userAssets/:user_id', function (req, res) {
         querystring += "row_to_json((SELECT l FROM (SELECT " + colnames + " ) As l      )) As properties";
         querystring += "   FROM cege0043.asset_with_latest_condition As lg ";
         querystring += " where user_id = $1 limit 100  ) As f ";
-        console.log('Query string: ' + querystring)
+        //console.log('Query string: ' + querystring)
         client.query(querystring, [user_id], function (err, result) {
             done();
             if (err) {
