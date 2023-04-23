@@ -91,7 +91,7 @@ geoJSON.get('/:schemaname/:tablename/:idcolumn/:geomcolumn', function (req, res)
         querystring = querystring + " from information_schema.columns as colname";
         querystring = querystring + " where table_name = $1";
         querystring = querystring + " and column_name <>$2 and table_schema=$3 and data_type<>'USER-DEFINED') as cols";
-        console.log(querystring);
+        //console.log(querystring);
 
         // now run the query
         client.query(querystring, [tablename, geomcolumn, schema],
@@ -201,7 +201,7 @@ geoJSON.get('/userAssets/:user_id', function (req, res) {
         querystring += "row_to_json((SELECT l FROM (SELECT " + colnames + " ) As l      )) As properties";
         querystring += "   FROM cege0043.asset_with_latest_condition As lg ";
         querystring += " where user_id = $1 limit 100  ) As f ";
-        console.log('Query string: ' + querystring)
+        //console.log('Query string: ' + querystring)
         client.query(querystring, [user_id], function (err, result) {
             done();
             if (err) {
@@ -246,9 +246,8 @@ geoJSON.get('/userRanking/:user_id', function (req, res) {
         let user_id = req.params.user_id
         
         // note that query needs to be a single string with no line breaks so built it up bit by bit
-        var querystring = "select array_to_json (array_agg(hh)) from"+
-        "(select c.rank from (SELECT b.user_id, rank()over (order by num_reports desc) as rank"+ 
-        "from (select COUNT(*) AS num_reports, user_id from cege0043.asset_condition_information group by user_id) b) c where c.user_id = $1) hh"
+        var querystring = "select array_to_json (array_agg(hh)) from (select c.rank from (SELECT b.user_id, rank()over (order by num_reports desc) as rank from"+
+        " (select COUNT(*) AS num_reports, user_id from cege0043.asset_condition_information group by user_id) b) c  where c.user_id = $1) hh";
         
         console.log('Query string: ' + querystring)
         client.query(querystring, [user_id], function (err, result) {
@@ -284,6 +283,27 @@ geoJSON.get('/assetsInGreatCondition',function (req, res) {
         });
     });
 });
+
+// Reference L2
+geoJSON.get('/dailyParticipationRates',function (req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("not able to get connection " + err);
+            res.status(400).send(err);
+        }
+        var querystring ="select  array_to_json (array_agg(c)) from (select day, sum(reports_submitted) as reports_submitted, sum(not_working) as reports_not_working "+
+        "from cege0043.report_summary group by day) c "
+        client.query(querystring, function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    });
+});
+
 //Reference S2
 geoJSON.get('/userFiveClosestAssets/:latitude/:longitude', function (req, res) {
     pool.connect(function (err, client, done) {
@@ -296,13 +316,13 @@ geoJSON.get('/userFiveClosestAssets/:latitude/:longitude', function (req, res) {
         
         
         // note that query needs to be a single string with no line breaks so built it up bit by bit
-        var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM "+
-        "(SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry, row_to_json((SELECT l FROM (SELECT id, asset_name, installation_date) As l )) As properties"+
-        " FROM   (select c.* from cege0043.asset_information c inner join (select id, st_distance(a.location, st_geomfromtext('POINT($1 $2)',4326)) as distance"+
-        "from cege0043.asset_information a order by distance asc limit 5) b on c.id = b.id ) as lg) As f"
+        var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM (SELECT 'Feature' As type     , ST_AsGeoJSON(lg.location)::json As geometry,"+
+        " row_to_json((SELECT l FROM (SELECT id, asset_name, installation_date) As l )) As properties FROM "+
+        " (select c.* from cege0043.asset_information c inner join "+
+        "(select id, st_distance(a.location, st_geomfromtext('POINT("+longitude+' '+latitude+")',4326)) as distance from cege0043.asset_information a order by distance asc limit 5) b on c.id = b.id ) as lg) As f"
         
         console.log('Query string: ' + querystring)
-        client.query(querystring, [latitude,longitude], function (err, result) {
+        client.query(querystring, function (err, result) {
             done();
             if (err) {
                 console.log(err);

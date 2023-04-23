@@ -62,7 +62,7 @@ crud.get('/userId', function (req, res) {
 // Added endpoint for insert functionality
 crud.post('/insertAssetPoint', function (req, res) {
     pool.connect(function (err, client, done) {
-        console.log('Connect to the database.')
+        //console.log('Connect to the database.')
 
         if (err) {
             console.log("not able to get connection " + err);
@@ -83,9 +83,15 @@ crud.post('/insertAssetPoint', function (req, res) {
             done();
 
             if (err) {
-                res.status(400).send(err);
+                console.log(err);
+                console.log(err.message);
+                //console.log('result of asset insertion:'+result);
+                res.status(200).send(err);
             }
-            res.status(200).send("Form Data " + req.body.asset_name + " has been inserted");
+            else{
+            res.
+            status(200).send(result)}
+            //("Form Data " + req.body.asset_name + " has been inserted");}
         });
 
     });
