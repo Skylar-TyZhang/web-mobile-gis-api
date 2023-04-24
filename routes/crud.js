@@ -89,9 +89,8 @@ crud.post('/insertAssetPoint', function (req, res) {
                 res.status(200).send(err);
             }
             else{
-            res.
-            status(200).send(result)}
-            //("Form Data " + req.body.asset_name + " has been inserted");}
+            res.status(200).send("Form Data " + req.body.asset_name + " has been inserted");}
+            //}
         });
 
     });
