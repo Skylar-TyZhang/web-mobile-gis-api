@@ -9,6 +9,7 @@ Table of Contents
 - [Testing](#testing)
 - [File Description ](#file-description-)
 - [Code reference](#code-reference)
+- [Testing details](#testing-details)
 
 
 
@@ -128,6 +129,10 @@ A large proportion of codes are adapted from the lab notes of [CEGE0043 Web and 
   
 * To enable dynamic data request,the [body-parser](https://www.npmjs.com/package/body-parser) was used to pass parameters in to query and then post to the database.
 * To connect to the PostGIS database, the [pg](https://www.npmjs.com/package/pg) package was used to process query.
+  
+## Testing details
+The API was tested to ensure optimal performance across multiple platforms and devices. The testing process involved using the latest versions of [Chrome](https://www.google.com/chrome/bsem/download/en_uk/?brand=VDKB&ds_kid=43700066121069632&gclid=d53981d5ca731eb97766e59df96fa596&gclsrc=3p.ds&utm_source=bing&utm_medium=cpc&utm_campaign=1605158%20%7C%20Chrome%20Win11%20%7C%20DR%20%7C%20ESS01%20%7C%20EMEA%20%7C%20GB%20%7C%20en%20%7C%20Desk%20%7C%20SEM%20%7C%20BKWS%20-%20EXA%20%7C%20Txt%20%7C%20Bing_Top%20KWDS&utm_term=google%20chrome&utm_content=Desk%20%7C%20BKWS%20-%20EXA%20%7C%20Txt_Google%20Chrome%20Top%20KWDS&gclid=d53981d5ca731eb97766e59df96fa596&gclsrc=3p.ds) and [Edge](https://www.microsoft.com/en-gb/edge/download?form=MA13FJ) browsers to test the endpoints, as well as running the dataAPI.js file on the Linux Server in Cyberduck to monitor the API's performance. 
+The testing process has identified a fully functional API in the lastest Chrome and Edge server.
   
 
 
