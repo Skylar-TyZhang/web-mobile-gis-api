@@ -42,24 +42,8 @@ Table of Contents
    
 
 ### Client side usage
-If you need to connect this API to an app, it is recommended to use [jquery](https://jquery.com/) and (promise object)[https://www.w3schools.com/Js/js_promise.asp] to deploy this API with code like following.
-`
-function getData(dataAPI) {
-    return new Promise(function (resolve, reject) {
-        $.ajax({
-            url: baseComputerAddress + dataAPI,
-            crossDomain: true,
-            type: 'GET',// if the endpoint is a post endpoint, it should be 'POST'
-            success: function (result) {
-                resolve(result);
-            },
-            error: function (err) {
-                reject(err);
-            }
-        })
-    })
-}
-` 
+If you want to connect this API to an app, it is recommended to use [jquery](https://jquery.com/) and (promise object)[https://www.w3schools.com/Js/js_promise.asp] to deploy this API.
+
 ## Testing
 Procedures to test this API
 1. Make sure your device is connected to UCL eduroam or UCL VPN.
@@ -127,8 +111,8 @@ A large proportion of codes are adapted from the lab notes of [CEGE0043 Web and 
    * Code used to handel error that may occur during the server starting period and database conncetion time
    * SQL query string used to retrive data from data base.
   
-* To enable dynamic data request,the [body-parser](https://www.npmjs.com/package/body-parser) was used to pass parameters in to query and then post to the database.
-* To connect to the PostGIS database, the [pg](https://www.npmjs.com/package/pg) package was used to process query.
+To enable dynamic data request,the [body-parser](https://www.npmjs.com/package/body-parser) was used to pass parameters in to query and then post to the database.
+To connect to the PostGIS database, the [pg](https://www.npmjs.com/package/pg) package was used to process query.
   
 ## Testing details
 The API was tested to ensure optimal performance across multiple platforms and devices. The testing process involved using the latest versions of [Chrome](https://www.google.com/chrome/bsem/download/en_uk/?brand=VDKB&ds_kid=43700066121069632&gclid=d53981d5ca731eb97766e59df96fa596&gclsrc=3p.ds&utm_source=bing&utm_medium=cpc&utm_campaign=1605158%20%7C%20Chrome%20Win11%20%7C%20DR%20%7C%20ESS01%20%7C%20EMEA%20%7C%20GB%20%7C%20en%20%7C%20Desk%20%7C%20SEM%20%7C%20BKWS%20-%20EXA%20%7C%20Txt%20%7C%20Bing_Top%20KWDS&utm_term=google%20chrome&utm_content=Desk%20%7C%20BKWS%20-%20EXA%20%7C%20Txt_Google%20Chrome%20Top%20KWDS&gclid=d53981d5ca731eb97766e59df96fa596&gclsrc=3p.ds) and [Edge](https://www.microsoft.com/en-gb/edge/download?form=MA13FJ) browsers to test the endpoints, as well as running the dataAPI.js file on the Linux Server in Cyberduck to monitor the API's performance. 
