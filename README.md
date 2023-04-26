@@ -21,9 +21,9 @@ Table of Contents
 **Important**: To start the server, it is necessary to intall the required packages, which will be discussed later, with [NPM](https://www.npmjs.com/) (node package manager) by running `npm install ` command. 
 
 
-* Some endpoints of this API require location coordinates as parameters and therefore [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) access via http conncetion. It is recommended to deploy this API using compatiable browsers listed [here]https://developer.mozilla.org/en-US/docs/Web/API/Geolocation#browser_compatibility). 
+* Some endpoints of this API require location coordinates as parameters and therefore [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API) access via http conncetion. It is recommended to deploy this API using compatiable browsers listed [here](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation#browser_compatibility). 
   
-* Due to technical reasons, the server is only accessible to UCL staff and students. If you are going to use this API outside the UCL campus, meaning that you are not connected to the eduroam, make sure you are connceted to the UCL VPN by following instructions [here](https://www.ucl.ac.uk/isd/services/get-connected/ucl-virtual-private-network-vpn).
+* Due to technical reasons, the API is only accessible to UCL staff and students. If you are going to use this API outside the UCL campus, meaning that you are not connected to the eduroam, make sure you are connceted to the UCL VPN by following instructions [here](https://www.ucl.ac.uk/isd/services/get-connected/ucl-virtual-private-network-vpn).
 
 
 ## Usage<a name="usage"></a>
