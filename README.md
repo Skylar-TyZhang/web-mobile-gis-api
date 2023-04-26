@@ -42,7 +42,7 @@ Table of Contents
    
 
 ### Client side usage
-If you want to connect this API to an app, it is recommended to use [jquery](https://jquery.com/) and (promise object)[https://www.w3schools.com/Js/js_promise.asp] to deploy this API.
+If you want to connect this API to an app, it is recommended to use [jquery](https://jquery.com/) and [promise object](https://www.w3schools.com/Js/js_promise.asp) to deploy this API.
 
 ## Testing
 Procedures to test this API
